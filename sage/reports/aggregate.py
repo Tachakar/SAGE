@@ -1,7 +1,7 @@
 from collections import defaultdict
 from decimal import Decimal
 
-from sage.engine.categorizer import CategorizedTransaction
+from sage.domain.categorization import CategorizedTransaction
 
 
 def group_by_category(rows: list[CategorizedTransaction]) -> dict[str, Decimal]:

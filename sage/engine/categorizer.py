@@ -1,22 +1,10 @@
-from dataclasses import dataclass
 from typing import Callable
 
+from sage.domain.categorization import CategorizationResult
 from sage.domain.rule import Rule
 from sage.domain.transaction import Transaction
 
 UNCATEGORIZED = "Uncategorized"
-
-
-@dataclass(frozen=True)
-class CategorizationResult:
-    category: str
-    rule_name: str | None
-
-
-@dataclass(frozen=True)
-class CategorizedTransaction:
-    tx: Transaction
-    result: CategorizationResult
 
 
 def make_categorizer(

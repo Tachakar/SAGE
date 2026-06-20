@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from sage.engine.categorizer import CategorizedTransaction
+from sage.domain.categorization import CategorizedTransaction
 from sage.reports.aggregate import by_month, group_by_category
 from tests.conftest import make_categorized
 

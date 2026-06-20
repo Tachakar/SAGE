@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from sage.domain.transaction import Transaction
-from sage.engine.categorizer import CategorizationResult, CategorizedTransaction
+from sage.domain.categorization import CategorizationResult, CategorizedTransaction
 
 DEFAULT_DATE = date(2026, 6, 19)
 
