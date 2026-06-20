@@ -9,7 +9,7 @@ def group_by_category(rows: list[CategorizedTransaction]) -> dict[str, Decimal]:
     for row in rows:
         category = row.result.category
         total[category] += row.tx.amount
-    return total
+    return dict(total)
 
 
 def by_month(rows: list[CategorizedTransaction]) -> dict[tuple[int, int], Decimal]:
@@ -17,4 +17,4 @@ def by_month(rows: list[CategorizedTransaction]) -> dict[tuple[int, int], Decima
     for row in rows:
         key = (row.tx.date.year, row.tx.date.month)
         total[key] += row.tx.amount
-    return total
+    return dict(total)

@@ -48,12 +48,14 @@ class BinaryCondition(Condition, ABC):
     right: Condition
 
 
+@dataclass(frozen=True)
 class And(BinaryCondition):
     @override
     def evaluate(self, tx: Transaction) -> bool:
         return self.left.evaluate(tx) and self.right.evaluate(tx)
 
 
+@dataclass(frozen=True)
 class Or(BinaryCondition):
     @override
     def evaluate(self, tx: Transaction) -> bool:

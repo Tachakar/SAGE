@@ -24,7 +24,7 @@ CATEGORIZE_CASES: list[tuple[str, str, str, str | None]] = [
     "description, amount, expected_category, expected_rule_name", CATEGORIZE_CASES
 )
 def test_categorize(
-    description: str, amount: str, expected_category: str, expected_rule_name: str
+    description: str, amount: str, expected_category: str, expected_rule_name: str | None
 ) -> None:
     categorize = make_categorizer(RULES)
     tx = make_tx(description=description, amount=amount)
