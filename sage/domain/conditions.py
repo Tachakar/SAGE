@@ -9,6 +9,15 @@ class Condition(ABC):
     @abstractmethod
     def evaluate(self, tx: Transaction) -> bool: ...
 
+    def __and__(self, other: Condition) -> And:
+        return And(self, other)
+
+    def __or__(self, other: Condition) -> Or:
+        return Or(self, other)
+
+    def __invert__(self) -> Not:
+        return Not(self)
+
 
 class Contains(Condition):
     def __init__(self, text: str) -> None:
