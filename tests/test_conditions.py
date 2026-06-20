@@ -1,4 +1,3 @@
-from datetime import date
 import dataclasses
 from decimal import Decimal
 import operator
@@ -7,13 +6,7 @@ from typing import Callable
 import pytest
 
 from sage.domain.conditions import Amount, And, Condition, Contains, Not, Or
-from sage.domain.transaction import Transaction
-
-
-def make_tx(description: str = "abc", amount: str = "100.00") -> Transaction:
-    return Transaction(
-        id="t1", date=date(2026, 6, 19), description=description, amount=Decimal(amount)
-    )
+from tests.conftest import make_tx
 
 
 CONTAINS_CASES: list[tuple[str, str, bool]] = [
