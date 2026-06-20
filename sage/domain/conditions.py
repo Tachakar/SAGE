@@ -31,3 +31,32 @@ class Amount(Condition):
     @override
     def evaluate(self, tx: Transaction) -> bool:
         return self.op(tx.amount, self.threshold)
+
+
+class BinaryCondition(Condition, ABC):
+    def __init__(self, left: Condition, right: Condition) -> None:
+        super().__init__()
+        self.left: Condition = left
+        self.right: Condition = right
+
+
+class And(BinaryCondition):
+    @override
+    def evaluate(self, tx: Transaction) -> bool:
+        return self.left.evaluate(tx) and self.right.evaluate(tx)
+
+
+class Or(BinaryCondition):
+    @override
+    def evaluate(self, tx: Transaction) -> bool:
+        return self.left.evaluate(tx) or self.right.evaluate(tx)
+
+
+class Not(Condition):
+    def __init__(self, condition: Condition) -> None:
+        super().__init__()
+        self.condition: Condition = condition
+
+    @override
+    def evaluate(self, tx: Transaction) -> bool:
+        return not self.condition.evaluate(tx)
