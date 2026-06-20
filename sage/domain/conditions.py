@@ -1,6 +1,9 @@
+import operator
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from dataclasses import dataclass
 from decimal import Decimal
+from functools import reduce
 from typing import Callable, override
 
 from sage.domain.transaction import Transaction
@@ -71,3 +74,17 @@ class Not(Condition):
     @override
     def evaluate(self, tx: Transaction) -> bool:
         return not self.condition.evaluate(tx)
+
+
+def any_of(conditions: Iterable[Condition]) -> Condition:
+    items = list(conditions)
+    if not items:
+        raise ValueError("any_of requires at least one condition")
+    return reduce(operator.or_, items)
+
+
+def all_of(conditions: Iterable[Condition]) -> Condition:
+    items = list(conditions)
+    if not items:
+        raise ValueError("all_of requires at least one condition")
+    return reduce(operator.and_, items)

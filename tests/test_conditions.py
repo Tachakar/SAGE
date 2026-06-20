@@ -5,7 +5,16 @@ from typing import Callable
 
 import pytest
 
-from sage.domain.conditions import Amount, And, Condition, Contains, Not, Or
+from sage.domain.conditions import (
+    Amount,
+    And,
+    Condition,
+    Contains,
+    Not,
+    Or,
+    all_of,
+    any_of,
+)
 from tests.conftest import make_tx
 
 
@@ -168,3 +177,48 @@ def test_and_is_immutable() -> None:
     cond = And(Contains("a"), Amount(operator.gt, Decimal("0")))
     with pytest.raises(dataclasses.FrozenInstanceError):
         cond.left = Contains("b")
+
+
+def test_any_of_folds_into_or_tree() -> None:
+    cond = any_of([Contains("biedronka"), Contains("lidl"), Contains("zabka")])
+    assert isinstance(cond, Or)
+    assert cond.evaluate(make_tx(description="Sklep Lidl"))
+    assert cond.evaluate(make_tx(description="Zabka 123"))
+    assert not cond.evaluate(make_tx(description="Apteka"))
+
+
+def test_all_of_folds_into_and_tree() -> None:
+    cond = all_of(
+        [
+            Contains("sklep"),
+            Contains("biedronka"),
+            Amount(operator.lt, Decimal("0")),
+        ]
+    )
+    assert isinstance(cond, And)
+    assert cond.evaluate(make_tx(description="Sklep Biedronka", amount="-12.50"))
+    assert not cond.evaluate(make_tx(description="Sklep Biedronka", amount="12.50"))
+    assert not cond.evaluate(make_tx(description="Sklep Lidl", amount="-12.50"))
+
+
+def test_any_of_matches_manual_or_chain() -> None:
+    conditions = [Contains("biedronka"), Contains("lidl"), Contains("zabka")]
+    folded = any_of(conditions)
+    manual = Contains("biedronka") | Contains("lidl") | Contains("zabka")
+    for description in ("Sklep Lidl", "Zabka", "Biedronka", "Apteka"):
+        tx = make_tx(description=description)
+        assert folded.evaluate(tx) == manual.evaluate(tx)
+
+
+def test_fold_of_single_condition_returns_it_unwrapped() -> None:
+    only = Contains("lidl")
+    assert any_of([only]) is only
+    assert all_of([only]) is only
+
+
+@pytest.mark.parametrize("fold", [any_of, all_of])
+def test_fold_of_empty_raises_value_error(
+    fold: Callable[[list[Condition]], Condition],
+) -> None:
+    with pytest.raises(ValueError):
+        fold([])
