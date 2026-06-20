@@ -1,4 +1,5 @@
 from datetime import date
+import dataclasses
 from decimal import Decimal
 import operator
 from typing import Callable
@@ -140,3 +141,37 @@ def test_nested_composite() -> None:
     )
     tx = make_tx(description="Sklep Biedronka", amount="-12.50")
     assert condition.evaluate(tx) is True
+
+
+def test_and_operator_builds_working_and() -> None:
+    cond = Contains("biedronka") & Amount(operator.lt, Decimal("0"))
+    assert isinstance(cond, And)
+    assert cond.evaluate(make_tx(description="Sklep Biedronka", amount="-12.50"))
+    assert not cond.evaluate(make_tx(description="Sklep Biedronka", amount="12.50"))
+
+
+def test_or_operator_builds_working_or() -> None:
+    cond = Contains("biedronka") | Contains("lidl")
+    assert isinstance(cond, Or)
+    assert cond.evaluate(make_tx(description="Sklep Biedronka"))
+    assert cond.evaluate(make_tx(description="Sklep Lidl"))
+    assert not cond.evaluate(make_tx(description="Apteka"))
+
+
+def test_invert_operator_builds_working_not() -> None:
+    cond = ~Contains("biedronka")
+    assert isinstance(cond, Not)
+    assert cond.evaluate(make_tx(description="Apteka"))
+    assert not cond.evaluate(make_tx(description="Sklep Biedronka"))
+
+
+def test_contains_is_immutable() -> None:
+    cond = Contains("biedronka")
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        cond.text = "lidl"
+
+
+def test_and_is_immutable() -> None:
+    cond = And(Contains("a"), Amount(operator.gt, Decimal("0")))
+    with pytest.raises(dataclasses.FrozenInstanceError):
+        cond.left = Contains("b")
