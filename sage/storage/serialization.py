@@ -74,7 +74,10 @@ def from_dict(data: ConditionDict) -> Condition:
             return Contains(text=text)
 
         case {"type": "amount", "op": op_name, "threshold": threshold}:
-            return Amount(op=NAME_TO_OPERATOR[op_name], threshold=Decimal(threshold))
+            op = NAME_TO_OPERATOR.get(op_name)
+            if op is None:
+                raise ValueError(f"unknown operator: {op_name!r}")
+            return Amount(op=op, threshold=Decimal(threshold))
 
         case {"type": "and", "left": left, "right": right}:
             return And(from_dict(left), from_dict(right))
