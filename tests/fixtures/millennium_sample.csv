@@ -1,0 +1,4 @@
+Numer rachunku/karty,Data transakcji,Data rozliczenia,Rodzaj transakcji,Na konto/Z konta,Odbiorca/Zleceniodawca,Opis,Obciążenia,Uznania,Saldo,Waluta
+PL00000000000000000000000000,2026-06-15,2026-06-15,BLIK,12345678,JOHN DOE,Sklep Biedronka 123,-12.50,,1000.00,PLN
+PL00000000000000000000000000,2026-06-16,2026-06-16,Przelew przychodzacy,87654321,Pracodawca SA,Wynagrodzenie czerwiec,,3000.00,4000.00,PLN
+PL00000000000000000000000000,2026-06-17,2026-06-17,Platnosc karta,11223344,APTEKA XYZ,Platnosc kartą,-45.99,,3954.01,PLN
