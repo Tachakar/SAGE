@@ -12,7 +12,7 @@ from sage.ingest.parsers.base import BankParser
 class MillenniumParser(BankParser):
     @override
     def parse(self, path: Path) -> Iterator[Transaction]:
-        with open(path, mode="r", encoding="utf-8") as f:
+        with open(path, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f, delimiter=",")
             for row_number, row in enumerate(reader, start=1):
                 yield Transaction(
