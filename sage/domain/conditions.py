@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Callable, override
 
@@ -19,34 +20,32 @@ class Condition(ABC):
         return Not(self)
 
 
+@dataclass(frozen=True)
 class Contains(Condition):
-    def __init__(self, text: str) -> None:
-        super().__init__()
-        self.text: str = text.strip()
+    text: str
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "text", self.text.strip())
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
         return self.text.lower() in tx.description.lower()
 
 
+@dataclass(frozen=True)
 class Amount(Condition):
-    def __init__(
-        self, op: Callable[[Decimal, Decimal], bool], threshold: Decimal
-    ) -> None:
-        super().__init__()
-        self.op: Callable[[Decimal, Decimal], bool] = op
-        self.threshold: Decimal = threshold
+    op: Callable[[Decimal, Decimal], bool]
+    threshold: Decimal
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
         return self.op(tx.amount, self.threshold)
 
 
+@dataclass(frozen=True)
 class BinaryCondition(Condition, ABC):
-    def __init__(self, left: Condition, right: Condition) -> None:
-        super().__init__()
-        self.left: Condition = left
-        self.right: Condition = right
+    left: Condition
+    right: Condition
 
 
 class And(BinaryCondition):
@@ -61,10 +60,9 @@ class Or(BinaryCondition):
         return self.left.evaluate(tx) or self.right.evaluate(tx)
 
 
+@dataclass(frozen=True)
 class Not(Condition):
-    def __init__(self, condition: Condition) -> None:
-        super().__init__()
-        self.condition: Condition = condition
+    condition: Condition
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
