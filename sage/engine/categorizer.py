@@ -4,7 +4,6 @@ from typing import Callable
 from sage.domain.rule import Rule
 from sage.domain.transaction import Transaction
 
-
 UNCATEGORIZED = "Uncategorized"
 
 
@@ -12,6 +11,12 @@ UNCATEGORIZED = "Uncategorized"
 class CategorizationResult:
     category: str
     rule_name: str | None
+
+
+@dataclass(frozen=True)
+class CategorizedTransaction:
+    tx: Transaction
+    result: CategorizationResult
 
 
 def make_categorizer(

@@ -28,21 +28,21 @@ FORMAT_AMOUNT_CASES = [
 
 
 @pytest.mark.parametrize("raw, expected", PARSE_AMOUNT_VALID_CASES)
-def test_parse_amount(raw, expected):
+def test_parse_amount(raw: str, expected: Decimal) -> None:
     assert parse_amount(raw) == expected
 
 
 @pytest.mark.parametrize("raw", PARSE_AMOUNT_INVALID_CASES)
-def test_parse_amount_invalid_raises_value_error(raw):
+def test_parse_amount_invalid_raises_value_error(raw: str) -> None:
     with pytest.raises(ValueError):
-        parse_amount(raw)
+        _ = parse_amount(raw)
 
 
 @pytest.mark.parametrize("amount, expected", FORMAT_AMOUNT_CASES)
-def test_format_amount(amount, expected):
+def test_format_amount(amount: Decimal, expected: str) -> None:
     assert format_amount(amount) == expected
 
 
-def test_format_amount_round_trip():
+def test_format_amount_round_trip() -> None:
     original = "1234,56"
     assert format_amount(parse_amount(original)) == original
