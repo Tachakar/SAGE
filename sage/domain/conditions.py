@@ -13,11 +13,11 @@ class Condition(ABC):
 class Contains(Condition):
     def __init__(self, text: str) -> None:
         super().__init__()
-        self.text: str = text
+        self.text: str = text.strip()
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
-        return self.text in tx.description
+        return self.text.lower() in tx.description.lower()
 
 
 class Amount(Condition):
