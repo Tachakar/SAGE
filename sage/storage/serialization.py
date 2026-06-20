@@ -53,9 +53,12 @@ def to_dict(condition: Condition) -> ConditionDict:
         case Contains(text=text):
             return {"type": "contains", "text": text}
         case Amount(op=op, threshold=threshold):
+            op_name = OPERATOR_TO_NAME.get(op)
+            if op_name is None:
+                raise ValueError(f"unsupported operator: {op!r}")
             return {
                 "type": "amount",
-                "op": OPERATOR_TO_NAME[op],
+                "op": op_name,
                 "threshold": str(threshold),
             }
         case And(left=left, right=right):

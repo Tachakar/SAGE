@@ -26,6 +26,8 @@ class Contains(Condition):
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "text", self.text.strip())
+        if not self.text:
+            raise ValueError("Contains text must not be empty")
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
