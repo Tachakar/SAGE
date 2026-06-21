@@ -9,6 +9,7 @@ from textual.message import Message
 from textual.reactive import reactive
 from textual.widgets import Button, DataTable, Input, Label, RadioButton, RadioSet, Select, Static
 
+from sage.cli.widgets import ModalInput
 from sage.domain.conditions import Amount, And, Contains, Or
 from sage.domain.rule import Rule
 from sage.storage.rule_store import save_rules
@@ -100,16 +101,16 @@ class RuleBuilder(Static):
 
                 with Static(classes="form-group"):
                     yield Label("Rule Name:")
-                    yield Input(id="rule-name", placeholder="e.g. Groceries")
+                    yield ModalInput(id="rule-name", placeholder="e.g. Groceries")
 
                 with Static(classes="form-group"):
                     yield Label("Category:")
                     yield Select([], id="rule-category-select", prompt="Select category...", allow_blank=True)
-                    yield Input(id="rule-category-new", placeholder="Type new category name...", classes="hidden")
+                    yield ModalInput(id="rule-category-new", placeholder="Type new category name...", classes="hidden")
 
                 with Static(classes="form-group"):
-                    yield Label("Priority (lower is higher priority, default 100):")
-                    yield Input(id="rule-priority", value="100")
+                    yield Label("Priority (lower is higher priority):")
+                    yield ModalInput(id="rule-priority", value="100")
 
                 yield Label("[bold]Condition 1[/bold]")
                 with Horizontal(classes="form-row"):
@@ -119,7 +120,7 @@ class RuleBuilder(Static):
                     ], id="cond1-type", prompt="Condition Type", allow_blank=True)
                 
                 with Horizontal(classes="form-row"):
-                    yield Input(id="cond1-text", placeholder="Text to match...", classes="cond1-inputs hidden")
+                    yield ModalInput(id="cond1-text", placeholder="Text to match...", classes="cond1-inputs hidden")
                     yield Select([
                         ("Greater than", "gt"), 
                         ("Greater than or equal", "ge"),
@@ -127,7 +128,7 @@ class RuleBuilder(Static):
                         ("Less than or equal", "le"),
                         ("Equal to", "eq")
                     ], id="cond1-op", prompt="Operator", allow_blank=True, classes="cond1-inputs hidden")
-                    yield Input(id="cond1-amount", placeholder="Amount (e.g. 50.00)", classes="cond1-inputs hidden")
+                    yield ModalInput(id="cond1-amount", placeholder="Amount (e.g. 50.00)", classes="cond1-inputs hidden")
                 yield Label(id="cond1-help", classes="hidden help-text")
 
                 yield Label("[bold]Condition 2 (Optional)[/bold]")
@@ -144,7 +145,7 @@ class RuleBuilder(Static):
                     ], id="cond2-type", prompt="Condition Type", allow_blank=True)
                 
                 with Horizontal(classes="form-row"):
-                    yield Input(id="cond2-text", placeholder="Text to match...", classes="cond2-inputs hidden")
+                    yield ModalInput(id="cond2-text", placeholder="Text to match...", classes="cond2-inputs hidden")
                     yield Select([
                         ("Greater than", "gt"), 
                         ("Greater than or equal", "ge"),
@@ -152,7 +153,7 @@ class RuleBuilder(Static):
                         ("Less than or equal", "le"),
                         ("Equal to", "eq")
                     ], id="cond2-op", prompt="Operator", allow_blank=True, classes="cond2-inputs hidden")
-                    yield Input(id="cond2-amount", placeholder="Amount", classes="cond2-inputs hidden")
+                    yield ModalInput(id="cond2-amount", placeholder="Amount", classes="cond2-inputs hidden")
                 yield Label(id="cond2-help", classes="hidden help-text")
 
                 yield Button("Save Rule", id="save-rule-btn", variant="primary")
@@ -239,7 +240,7 @@ class RuleBuilder(Static):
         try:
             priority = int(pri_str)
         except ValueError:
-            priority = 100
+            priority = 1
 
         try:
             cond1 = self.parse_condition("cond1")

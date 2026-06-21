@@ -1,13 +1,20 @@
 [project]
 name = "sage"
 version = "0.1.0"
-description = "Add your description here"
+description = "Personal-finance CLI: import bank CSVs, categorize transactions, and report spending."
 requires-python = ">=3.14"
 dependencies = [
     "questionary>=2.1.1",
     "rich>=15.0.0",
     "textual>=8.2.7",
 ]
+
+[project.scripts]
+sage = "sage.cli.app:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [

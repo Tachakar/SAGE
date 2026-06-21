@@ -1,14 +1,15 @@
-from pathlib import Path
-
 from sage.ingest.parsers.base import BankParser
 from sage.ingest.parsers.mbank import MBankParser
 from sage.ingest.parsers.millennium import MillenniumParser
 
+SUPPORTED_PARSER: dict[str, type[BankParser]] = {
+    "Millennium": MillenniumParser,
+    "mBank": MBankParser,
+}
 
-def detect_parser(path: Path) -> BankParser:
-    with open(path, "r", encoding="cp1250", errors="ignore") as f:
-        header_chunk = f.read(1024).lower()
 
-    if "mbank" in header_chunk:
-        return MBankParser()
-    return MillenniumParser()
+def detect_parser(name: str) -> BankParser:
+    parser = SUPPORTED_PARSER.get(name)
+    if parser is None:
+        raise ValueError(f"unknown bank: {name!r}")
+    return parser()

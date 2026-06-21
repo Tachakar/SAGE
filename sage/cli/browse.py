@@ -3,6 +3,8 @@ from textual.containers import Horizontal
 from textual.reactive import reactive
 from textual.widgets import DataTable, Input, Label, Static, Select
 
+from sage.cli.widgets import ModalInput
+
 from sage.domain.categorization import CategorizedTransaction
 from sage.domain.money import format_amount
 
@@ -39,7 +41,7 @@ class BrowseTransactions(Static):
     def compose(self) -> ComposeResult:
         with Horizontal(classes="search-bar"):
             yield Label("Search:")
-            yield Input(placeholder="Filter by description or category...", id="search-input")
+            yield ModalInput(placeholder="Filter by description or category...", id="search-input")
             yield Label("Rule:")
             yield Select([], id="rule-filter", prompt="No rules", allow_blank=True)
         yield DataTable(id="tx-table")
