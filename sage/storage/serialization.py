@@ -22,10 +22,13 @@ class ContainsDict(TypedDict):
     text: str
 
 
+from typing import Callable, Literal, TypedDict, NotRequired
+
 class AmountDict(TypedDict):
     type: Literal["amount"]
     op: str
     threshold: str
+    absolute: NotRequired[bool]
 
 
 class AndDict(TypedDict):
@@ -52,7 +55,7 @@ def to_dict(condition: Condition) -> ConditionDict:
     match condition:
         case Contains(text=text):
             return {"type": "contains", "text": text}
-        case Amount(op=op, threshold=threshold):
+        case Amount(op=op, threshold=threshold, absolute=abs_val):
             op_name = OPERATOR_TO_NAME.get(op)
             if op_name is None:
                 raise ValueError(f"unsupported operator: {op!r}")
@@ -60,6 +63,7 @@ def to_dict(condition: Condition) -> ConditionDict:
                 "type": "amount",
                 "op": op_name,
                 "threshold": str(threshold),
+                "absolute": abs_val,
             }
         case And(left=left, right=right):
             return {"type": "and", "left": to_dict(left), "right": to_dict(right)}
@@ -76,11 +80,11 @@ def from_dict(data: ConditionDict) -> Condition:
         case {"type": "contains", "text": text}:
             return Contains(text=text)
 
-        case {"type": "amount", "op": op_name, "threshold": threshold}:
+        case {"type": "amount", "op": op_name, "threshold": threshold, **kwargs}:
             op = NAME_TO_OPERATOR.get(op_name)
             if op is None:
                 raise ValueError(f"unknown operator: {op_name!r}")
-            return Amount(op=op, threshold=Decimal(threshold))
+            return Amount(op=op, threshold=Decimal(threshold), absolute=kwargs.get("absolute", False))
 
         case {"type": "and", "left": left, "right": right}:
             return And(from_dict(left), from_dict(right))

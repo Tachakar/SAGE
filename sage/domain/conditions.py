@@ -41,10 +41,12 @@ class Contains(Condition):
 class Amount(Condition):
     op: Callable[[Decimal, Decimal], bool]
     threshold: Decimal
+    absolute: bool = False
 
     @override
     def evaluate(self, tx: Transaction) -> bool:
-        return self.op(tx.amount, self.threshold)
+        val = abs(tx.amount) if self.absolute else tx.amount
+        return self.op(val, self.threshold)
 
 
 @dataclass(frozen=True)

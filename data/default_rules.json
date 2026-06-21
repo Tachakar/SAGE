@@ -1,0 +1,54 @@
+[
+  {
+    "name": "Income",
+    "condition": {
+      "type": "amount",
+      "op": "gt",
+      "threshold": "0",
+      "absolute": false
+    },
+    "category": "Income",
+    "priority": 100
+  },
+  {
+    "name": "Groceries",
+    "condition": {
+      "type": "or",
+      "left": {
+        "type": "or",
+        "left": {
+          "type": "contains",
+          "text": "biedronka"
+        },
+        "right": {
+          "type": "contains",
+          "text": "lidl"
+        }
+      },
+      "right": {
+        "type": "contains",
+        "text": "zabka"
+      }
+    },
+    "category": "Groceries",
+    "priority": 100
+  },
+  {
+    "name": "BLIK Payments",
+    "condition": {
+      "type": "contains",
+      "text": "blik"
+    },
+    "category": "BLIK",
+    "priority": 100
+  },
+  {
+    "name": "Transfers",
+    "condition": {
+      "type": "contains",
+      "text": "przelew"
+    },
+    "category": "Transfers",
+    "priority": 100
+  }
+]

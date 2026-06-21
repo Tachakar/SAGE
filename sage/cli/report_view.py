@@ -1,78 +1,32 @@
-from textual.app import ComposeResult
-from textual.containers import VerticalScroll
-from textual.reactive import reactive
-from textual.widgets import DataTable, Static
+from rich.columns import Columns
+from rich.text import Text
+from rich.table import Table
 
-from sage.domain.categorization import CategorizedTransaction
+from sage.cli.state import AppState
 from sage.domain.money import format_amount
 from sage.reports.aggregate import by_month, group_by_category
 
-
-class ReportView(Static):
-    DEFAULT_CSS = """
-    ReportView {
-        width: 1fr;
-        height: 1fr;
-        padding: 1;
-    }
-    DataTable {
-        height: auto;
-        margin-bottom: 2;
-        border: solid $accent;
-    }
-    """
-
-    transactions: reactive[list[CategorizedTransaction]] = reactive([])
-
-    def compose(self) -> ComposeResult:
-        with VerticalScroll():
-            yield DataTable(id="category-table")
-            yield DataTable(id="month-table")
-
-    def on_mount(self) -> None:
-        cat_table = self.query_one("#category-table", DataTable)
-        cat_table.cursor_type = "row"
-        cat_table.add_column("Category", width=30)
-        cat_table.add_column("Total", width=20)
-
-        month_table = self.query_one("#month-table", DataTable)
-        month_table.cursor_type = "row"
-        month_table.add_column("Month", width=15)
-        month_table.add_column("Total", width=20)
-
-        self.update_tables()
-
-    def watch_transactions(self, new_txs: list[CategorizedTransaction]) -> None:
-        self.update_tables()
-
-    def update_tables(self) -> None:
-        try:
-            cat_table = self.query_one("#category-table", DataTable)
-            month_table = self.query_one("#month-table", DataTable)
-        except Exception:
-            return
-
-        cat_table.clear()
-        month_table.clear()
-
-        # Category
-        cat_totals = group_by_category(self.transactions)
-        for cat in sorted(cat_totals.keys()):
-            total = cat_totals[cat]
-            amt_str = format_amount(total) + " PLN"
-            if total >= 0:
-                amt_str = f"[bold green]{amt_str}[/bold green]"
-            else:
-                amt_str = f"[bold red]{amt_str}[/bold red]"
-            cat_table.add_row(cat, amt_str)
-
-        # Month
-        month_totals = by_month(self.transactions)
-        for (year, month) in sorted(month_totals.keys()):
-            total = month_totals[(year, month)]
-            amt_str = format_amount(total) + " PLN"
-            if total >= 0:
-                amt_str = f"[bold green]{amt_str}[/bold green]"
-            else:
-                amt_str = f"[bold red]{amt_str}[/bold red]"
-            month_table.add_row(f"{year}-{month:02d}", amt_str)
+def get_reports_renderable(state: AppState):
+    if not state.transactions:
+        return Text("No transactions available. Import a CSV first.", style="bold yellow", justify="center")
+        
+    cat_totals = group_by_category(state.transactions)
+    month_totals = by_month(state.transactions)
+    
+    cat_table = Table(title="By Category", expand=True)
+    cat_table.add_column("Category", style="cyan")
+    cat_table.add_column("Total", justify="right")
+    for cat in sorted(cat_totals.keys()):
+        tot = cat_totals[cat]
+        color = "green" if tot >= 0 else "red"
+        cat_table.add_row(cat, f"[{color}]{format_amount(tot)} PLN[/{color}]")
+        
+    month_table = Table(title="By Month", expand=True)
+    month_table.add_column("Month", style="cyan")
+    month_table.add_column("Total", justify="right")
+    for (year, month) in sorted(month_totals.keys()):
+        tot = month_totals[(year, month)]
+        color = "green" if tot >= 0 else "red"
+        month_table.add_row(f"{year}-{month:02d}", f"[{color}]{format_amount(tot)} PLN[/{color}]")
+        
+    return Columns([cat_table, month_table], expand=True)
