@@ -152,13 +152,26 @@ def draw_dashboard(console: Console, view: str, state: AppState):
     console.clear()
     console.print(grid)
 
+def safe_load_rules(console: Console, path: Path) -> list[Rule]:
+    try:
+        return load_rules(path)
+    except Exception as e:
+        console.print(f"\n[bold red]FATAL ERROR[/bold red]: Failed to load rules from [yellow]{path}[/yellow].")
+        console.print(f"[red]Reason:[/red] {e}")
+        console.print("Please fix the file or delete it.")
+        sys.exit(1)
+
 def main() -> None:
     console = Console()
+    
+    default_rules_path = Path("data/default_rules.json")
+    user_rules_path = Path("data/user_rules.json")
+    
     state = AppState(
-        default_rules=load_rules(Path("data/default_rules.json")),
-        user_rules=load_rules(Path("data/user_rules.json")),
-        default_rules_path=Path("data/default_rules.json"),
-        user_rules_path=Path("data/user_rules.json")
+        default_rules=safe_load_rules(console, default_rules_path),
+        user_rules=safe_load_rules(console, user_rules_path),
+        default_rules_path=default_rules_path,
+        user_rules_path=user_rules_path
     )
     current_view = "main"
 
