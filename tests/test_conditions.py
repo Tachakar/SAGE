@@ -39,6 +39,32 @@ def test_contains(description: str, text: str, expected: bool) -> None:
     assert Contains(text).evaluate(tx) == expected
 
 
+@pytest.mark.parametrize("text", ["", "   ", "\t\n"])
+def test_contains_empty_text_raises_value_error(text: str) -> None:
+    with pytest.raises(ValueError, match="must not be empty"):
+        Contains(text)
+
+
+AMOUNT_ABSOLUTE_CASES: list[tuple[Callable[[Decimal, Decimal], bool], Decimal, str, bool]] = [
+    (operator.gt, Decimal("100"), "-150.00", True),
+    (operator.gt, Decimal("100"), "150.00", True),
+    (operator.gt, Decimal("100"), "-50.00", False),
+    (operator.lt, Decimal("100"), "-50.00", True),
+    (operator.eq, Decimal("50"), "-50.00", True),
+]
+
+
+@pytest.mark.parametrize("op, threshold, tx_amount, expected", AMOUNT_ABSOLUTE_CASES)
+def test_amount_absolute_ignores_sign(
+    op: Callable[[Decimal, Decimal], bool],
+    threshold: Decimal,
+    tx_amount: str,
+    expected: bool,
+) -> None:
+    tx = make_tx(amount=tx_amount)
+    assert Amount(op, threshold, absolute=True).evaluate(tx) == expected
+
+
 @pytest.mark.parametrize("op, threshold, tx_amount, expected", AMOUNT_CASES)
 def test_amount(
     op: Callable[[Decimal, Decimal], bool],
