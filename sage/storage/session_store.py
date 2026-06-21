@@ -9,6 +9,7 @@ class SessionDict(TypedDict):
     search_query: str
     rule_filter: Optional[str]
     browse_page: int
+    budget: Optional[str]
 
 
 def load_session(path: Path) -> Optional[SessionDict]:

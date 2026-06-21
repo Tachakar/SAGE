@@ -106,6 +106,7 @@ def persist_session(state: AppState) -> None:
         "search_query": state.search_query,
         "rule_filter": state.rule_filter,
         "browse_page": state.browse_page,
+        "budget": str(state.budget) if state.budget is not None else None,
     }, SESSION_PATH)
 
 def draw_dashboard(console: Console, view: str, state: AppState):
@@ -136,7 +137,8 @@ def draw_dashboard(console: Console, view: str, state: AppState):
         main_content = Group(content, Text(""), Text.from_markup(keys, justify="center"))
     elif view == "reports":
         content = get_reports_renderable(state)
-        main_content = Group(content, Text(""), Text.from_markup("[bold]Local Keys:[/bold] (None)", justify="center"))
+        keys = "[bold]Local Keys:[/bold] [green]e[/green] Edit Budget"
+        main_content = Group(content, Text(""), Text.from_markup(keys, justify="center"))
     elif view == "builder":
         content = get_builder_renderable(state)
         keys = "[bold]Local Keys:[/bold] [green]a[/green] Add Rule | [green]e[/green] Edit Rule | [green]d[/green] Delete Rule"
@@ -172,6 +174,9 @@ def main() -> None:
             state.search_query = session.get("search_query", "")
             state.rule_filter = session.get("rule_filter")
             state.browse_page = session.get("browse_page", 0)
+            budget_str = session.get("budget")
+            if budget_str:
+                state.budget = Decimal(budget_str)
             current_view = "browse"
         except Exception as e:
             console.print(f"[red]Could not restore last session: {e}[/red]")
@@ -290,6 +295,23 @@ def _run_loop(console: Console, state: AppState, current_view: str) -> None:
                 state.browse_page = 0
                 persist_session(state)
                 
+        elif current_view == "reports":
+            if key == 'e':
+                console.print()
+                budget_str = qtext("Enter monthly budget limit:", default=str(state.budget) if state.budget else "")
+                if budget_str is not None:
+                    budget_str = budget_str.strip()
+                    if budget_str == "":
+                        state.budget = None
+                        persist_session(state)
+                    else:
+                        try:
+                            state.budget = parse_amount(budget_str)
+                            persist_session(state)
+                        except Exception:
+                            console.print("[red]Invalid budget amount[/red]")
+                            time.sleep(1.5)
+                            
         elif current_view == "builder":
             COMPARISON_OPS = {
                 "More than": operator.gt, "At least": operator.ge, "Less than": operator.lt,

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from decimal import Decimal
 from pathlib import Path
 from typing import List, Optional
 
@@ -23,6 +24,7 @@ class AppState:
     rule_filter: Optional[str] = None
     last_csv_path: Optional[str] = None
     last_bank: Optional[str] = None
+    budget: Optional[Decimal] = None
     
     def get_filtered_transactions(self) -> List[CategorizedTransaction]:
         filtered = []
