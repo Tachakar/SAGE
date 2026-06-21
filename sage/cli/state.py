@@ -21,6 +21,8 @@ class AppState:
     browse_page: int = 0
     search_query: str = ""
     rule_filter: Optional[str] = None
+    last_csv_path: Optional[str] = None
+    last_bank: Optional[str] = None
     
     def get_filtered_transactions(self) -> List[CategorizedTransaction]:
         filtered = []

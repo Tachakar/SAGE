@@ -15,7 +15,10 @@ class MillenniumParser(BankParser):
         with open(path, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f, delimiter=",")
             for row_number, row in enumerate(reader, start=1):
-                debit, credit = row["Obciążenia"], row["Uznania"]
+                try:
+                    debit, credit = row["Obciążenia"], row["Uznania"]
+                except KeyError as exc:
+                    raise ValueError(f"row {row_number}: missing column {exc} in {row!r}") from exc
                 if debit and credit:
                     raise ValueError(f"row {row_number}: both debit and credit set in {row!r}")
                 raw_amount = debit or credit
@@ -25,9 +28,17 @@ class MillenniumParser(BankParser):
                     amount = parse_amount(raw_amount)
                 except ValueError as exc:
                     raise ValueError(f"row {row_number}: {exc}") from exc
+                try:
+                    tx_date = date.fromisoformat(row["Data transakcji"])
+                except (KeyError, ValueError) as exc:
+                    raise ValueError(f"row {row_number}: invalid date {row.get('Data transakcji')!r}") from exc
+                try:
+                    description = f"{row['Odbiorca/Zleceniodawca']} {row['Opis']}".strip()
+                except KeyError as exc:
+                    raise ValueError(f"row {row_number}: missing column {exc} in {row!r}") from exc
                 yield Transaction(
                     id=f"{path.name}:{row_number}",
-                    date=date.fromisoformat(row["Data transakcji"]),
-                    description=f"{row['Odbiorca/Zleceniodawca']} {row['Opis']}".strip(),
+                    date=tx_date,
+                    description=description,
                     amount=amount,
                 )

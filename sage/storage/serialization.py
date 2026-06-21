@@ -1,6 +1,6 @@
 import operator
 from decimal import Decimal
-from typing import Callable, Literal, TypedDict
+from typing import Callable, Literal, NotRequired, TypedDict
 
 from sage.domain.conditions import Amount, And, Condition, Contains, Not, Or
 
@@ -21,8 +21,6 @@ class ContainsDict(TypedDict):
     type: Literal["contains"]
     text: str
 
-
-from typing import Callable, Literal, TypedDict, NotRequired
 
 class AmountDict(TypedDict):
     type: Literal["amount"]
@@ -84,7 +82,11 @@ def from_dict(data: ConditionDict) -> Condition:
             op = NAME_TO_OPERATOR.get(op_name)
             if op is None:
                 raise ValueError(f"unknown operator: {op_name!r}")
-            return Amount(op=op, threshold=Decimal(threshold), absolute=kwargs.get("absolute", False))
+            try:
+                parsed_threshold = Decimal(threshold)
+            except Exception:
+                raise ValueError(f"invalid amount threshold: {threshold!r}")
+            return Amount(op=op, threshold=parsed_threshold, absolute=kwargs.get("absolute", False))
 
         case {"type": "and", "left": left, "right": right}:
             return And(from_dict(left), from_dict(right))

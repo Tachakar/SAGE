@@ -8,7 +8,7 @@ from sage.reports.aggregate import by_month, group_by_category
 
 def get_reports_renderable(state: AppState):
     if not state.transactions:
-        return Text("No transactions available. Import a CSV first.", style="bold yellow", justify="center")
+        return Text("No transactions available. Import a bank statement first.", style="bold yellow", justify="center")
         
     cat_totals = group_by_category(state.transactions)
     month_totals = by_month(state.transactions)
