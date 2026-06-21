@@ -4,7 +4,7 @@ from sage.domain.categorization import CategorizationResult
 from sage.domain.rule import Rule
 from sage.domain.transaction import Transaction
 
-UNCATEGORIZED = "Uncategorized"
+UNCATEGORIZED = "Unknown"
 
 
 def make_categorizer(

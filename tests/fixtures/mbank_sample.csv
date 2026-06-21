@@ -1,0 +1,5 @@
+#Data ksi�gowania;#Data operacji;#Opis operacji;#Tytu�;#Nadawca/Odbiorca;#Numer konta;#Kwota;#Saldo po operacji;
+2026-03-01;2026-03-01;BLIK P2P-WYCHODZ�CY;"PRZELEW �RODK�W";"  ";'';-50,00;2 985,60;
+2026-03-01;2026-03-01;ZAKUP PRZY U�YCIU KARTY;"LIDL OBORNICKA     /Wroclaw                                           DATA TRANSAKCJI: 2026-02-28";"  ";'';-40,15;2 945,45;
+2026-03-02;2026-03-02;BLIK P2P-WYCHODZ�CY;"PRZELEW �RODK�W";"  ";'';-6,50;2 938,95;
+2026-03-02;2026-03-02;BLIK P2P-WYCHODZ�CY;"ZA ZAKUPY";"  ";'';-167,00;2 771,95;
