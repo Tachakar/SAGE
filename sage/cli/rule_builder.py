@@ -3,8 +3,6 @@ from decimal import Decimal
 
 from rich.table import Table
 from sage.cli.state import AppState
-from sage.domain.conditions import Amount, And, Contains, Or
-from sage.domain.rule import Rule
 
 from sage.domain.conditions import Amount, And, Contains, Not, Or, Condition
 from sage.storage.serialization import OPERATOR_TO_NAME
