@@ -98,11 +98,9 @@ def do_import(csv_path: Path, bank: str, rules: list) -> list[CategorizedTransac
     return [CategorizedTransaction(tx, categorize(tx)) for tx in txs]
 
 def persist_session(state: AppState) -> None:
-    if not state.last_csv_path or not state.last_bank:
-        return
     save_session({
-        "csv_path": state.last_csv_path,
-        "bank": state.last_bank,
+        "csv_path": state.last_csv_path or "",
+        "bank": state.last_bank or "",
         "search_query": state.search_query,
         "rule_filter": state.rule_filter,
         "browse_page": state.browse_page,
@@ -176,25 +174,26 @@ def main() -> None:
     current_view = "main"
 
     session = load_session(SESSION_PATH)
-    if session and session.get("csv_path") and Path(session["csv_path"]).exists():
-        csv_path = Path(session["csv_path"])
-        bank = session["bank"]
-        try:
-            with console.status(f"[bold cyan]Restoring last session: {csv_path.name}...[/bold cyan]", spinner="dots"):
-                state.transactions = do_import(csv_path, bank, state.rules)
-            state.last_csv_path = str(csv_path)
-            state.last_bank = bank
-            state.search_query = session.get("search_query", "")
-            state.rule_filter = session.get("rule_filter")
-            state.browse_page = session.get("browse_page", 0)
-            budget_str = session.get("budget")
-            if budget_str:
-                state.budget = Decimal(budget_str)
-            current_view = "browse"
-        except Exception as e:
-            console.print(f"[red]Could not restore last session: {e}[/red]")
-            time.sleep(1.5)
-            SESSION_PATH.unlink(missing_ok=True)
+    if session:
+        state.search_query = session.get("search_query", "")
+        state.rule_filter = session.get("rule_filter")
+        state.browse_page = session.get("browse_page", 0)
+        budget_str = session.get("budget")
+        if budget_str:
+            state.budget = Decimal(budget_str)
+            
+        if session.get("csv_path") and Path(session["csv_path"]).exists():
+            csv_path = Path(session["csv_path"])
+            bank = session["bank"]
+            try:
+                with console.status(f"[bold cyan]Restoring last session: {csv_path.name}...[/bold cyan]", spinner="dots"):
+                    state.transactions = do_import(csv_path, bank, state.rules)
+                state.last_csv_path = str(csv_path)
+                state.last_bank = bank
+                current_view = "browse"
+            except Exception as e:
+                console.print(f"[red]Could not restore last session: {e}[/red]")
+                time.sleep(1.5)
 
     try:
         _run_loop(console, state, current_view)
@@ -394,6 +393,10 @@ def _run_loop(console: Console, state: AppState, current_view: str) -> None:
                     
                     name = qtext("What should this rule be called?", default=rule.name)
                     if not name: continue
+                    if name != rule.name and any(r.name == name for r in state.rules):
+                        console.print("[red]A rule with that name already exists![/red]")
+                        time.sleep(1.5)
+                        continue
                     
                     cats = sorted(list(set(r.category for r in state.rules)))
                     def_cat = rule.category if rule.category in cats else None
@@ -406,8 +409,12 @@ def _run_loop(console: Console, state: AppState, current_view: str) -> None:
                     
                     priority_str = qtext("Which order should this rule be checked in? (1 = checked first)", default=str(rule.priority))
                     if not priority_str: continue
-                    try: priority = int(priority_str)
-                    except ValueError: priority = rule.priority
+                    try: 
+                        priority = int(priority_str)
+                    except ValueError: 
+                        console.print("[red]Priority must be a number.[/red]")
+                        time.sleep(1.5)
+                        continue
                         
                     keep = qconfirm(f"Keep existing condition ({format_condition(rule.condition)})?")
                     if keep:
@@ -451,6 +458,10 @@ def _run_loop(console: Console, state: AppState, current_view: str) -> None:
                 console.print()
                 name = qtext("What should this rule be called?")
                 if not name: continue
+                if any(r.name == name for r in state.rules):
+                    console.print("[red]A rule with that name already exists![/red]")
+                    time.sleep(1.5)
+                    continue
                 
                 cats = sorted(list(set(r.category for r in state.rules)))
                 cat_choice = qselect("Category:", choices=cats + ["Create a new category"])
@@ -462,8 +473,12 @@ def _run_loop(console: Console, state: AppState, current_view: str) -> None:
                     
                 priority_str = qtext("Which order should this rule be checked in? (1 = checked first, default 100)", default="100")
                 if not priority_str: continue
-                try: priority = int(priority_str)
-                except ValueError: priority = 100
+                try: 
+                    priority = int(priority_str)
+                except ValueError: 
+                    console.print("[red]Priority must be a number.[/red]")
+                    time.sleep(1.5)
+                    continue
                     
                 conds = []
                 summaries = []
