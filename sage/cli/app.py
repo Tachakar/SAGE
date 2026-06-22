@@ -74,7 +74,7 @@ def qconfirm(*args, **kwargs):
 def get_available_csvs() -> list[tuple[str, str]]:
     paths = []
     root = Path(__file__).parent.parent.parent
-    dirs = [Path("."), root / "data", root / "tests/fixtures"]
+    dirs = [Path("."), root / "data"]
     for d in dirs:
         if d.exists() and d.is_dir():
             for p in d.glob("*.csv"):
